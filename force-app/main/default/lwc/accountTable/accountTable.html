@@ -1,0 +1,15 @@
+<template>
+    <lightning-card title="アカウント一覧" icon-name="standard:account">
+        <template if:true={accounts}>
+            <lightning-datatable
+                key-field="Id"
+                data={accounts}
+                columns={columns}
+                hide-checkbox-column>
+            </lightning-datatable>
+        </template>
+        <template if:true={error}>
+            <div class="slds-text-color_error slds-m-around_medium">{error}</div>
+        </template>
+    </lightning-card>
+</template>

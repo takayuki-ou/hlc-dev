@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Summary_Required</fullName>
+    <active>true</active>
+    <description>概要は必須（空白のみも不可）</description>
+    <errorConditionFormula>LEN(TRIM(Summary__c)) = 0</errorConditionFormula>
+    <errorDisplayField>Summary__c</errorDisplayField>
+    <errorMessage>概要は必須です</errorMessage>
+</ValidationRule>
