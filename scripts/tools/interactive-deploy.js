@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
-const inquirer = require("inquirer");
-const { execSync } = require("child_process");
-const fs = require("fs");
-const path = require("path");
+import inquirer from "inquirer";
+import { execSync } from "child_process";
+import fs from "fs";
+import path from "path";
 
 async function saveCommandToFile(command) {
   const historyDir = path.join("scripts", "tools", "command_history");
