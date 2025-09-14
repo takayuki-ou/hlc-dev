@@ -2,6 +2,35 @@
 
 const inquirer = require("inquirer");
 const { execSync } = require("child_process");
+const fs = require("fs");
+const path = require("path");
+
+async function saveCommandToFile(command) {
+  const historyDir = path.join("scripts", "tools", "command_history");
+  try {
+    if (!fs.existsSync(historyDir)) {
+      fs.mkdirSync(historyDir, { recursive: true });
+    }
+
+    const now = new Date();
+    const timestamp =
+      now.getFullYear().toString() +
+      (now.getMonth() + 1).toString().padStart(2, "0") +
+      now.getDate().toString().padStart(2, "0") +
+      now.getHours().toString().padStart(2, "0") +
+      now.getMinutes().toString().padStart(2, "0") +
+      now.getSeconds().toString().padStart(2, "0");
+
+    const fileName = `${timestamp}.sh`;
+    const filePath = path.join(historyDir, fileName);
+    const fileContent = `#!/bin/bash\n\n${command}`;
+
+    fs.writeFileSync(filePath, fileContent);
+    console.log(`\nコマンドが ${filePath} に保存されました。`);
+  } catch (error) {
+    console.error("\nコマンドのファイルへの保存に失敗しました:", error.message);
+  }
+}
 
 /**
  * sfコマンドのプレビュー結果を取得します。
@@ -110,18 +139,29 @@ async function main() {
   // 最終的なデプロイコマンドを構築
   const finalCommand = `sf project deploy start --metadata ${metadataString} -o ${targetOrg}`;
 
-  console.log("\n実行するコマンド:");
-  console.log(finalCommand);
+    // ファイルに保存するか確認
+    const { saveToFile } = await inquirer.prompt([
+      {
+        type: "confirm",
+        name: "saveToFile",
+        message: "このコマンドをファイルに保存しますか?",
+        default: false
+      }
+    ]);
 
-  // 実行確認
-  const { confirmDeploy } = await inquirer.prompt([
-    {
-      type: "confirm",
-      name: "confirmDeploy",
-      message: "このコマンドを実行しますか?",
-      default: false
+    if (saveToFile) {
+      await saveCommandToFile(finalCommand);
     }
-  ]);
+
+    // 実行確認
+    const { confirmDeploy } = await inquirer.prompt([
+      {
+        type: "confirm",
+        name: "confirmDeploy",
+        message: "このコマンドを実行しますか?",
+        default: true
+      }
+    ]);
 
   if (confirmDeploy) {
     console.log("\nデプロイを実行中...");
