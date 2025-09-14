@@ -1,36 +1,77 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <Package xmlns="http://soap.sforce.com/2006/04/metadata">
     <types>
-        <members>*</members>
+        <members>FieldSales_Mobile</members>
+        <name>CustomApplication</name>
+    </types>
+    <types>
+        <members>AccountController</members>
+        <members>SimilarBoatsController</members>
         <name>ApexClass</name>
     </types>
     <types>
-        <members>*</members>
+        <members>SimilarBoatsComponent</members>
         <name>ApexComponent</name>
     </types>
     <types>
-        <members>*</members>
-        <name>ApexPage</name>
+        <members>Account</members>
+        <members>Boat__c</members>
+        <members>BoatReview__c</members>
+        <members>BoatType__c</members>
+        <members>OrderInfo__c</members>
+        <members>SalesAction__c</members>
+        <members>SalesActivity__c</members>
+        <name>CustomObject</name>
     </types>
     <types>
-        <members>*</members>
-        <name>ApexTestSuite</name>
+        <members>FlexiPage</members>
+        <members>AccountList_App</members>
+        <members>Boat_Record_Page</members>
+        <members>FieldSalesMobile_UtilityBar</members>
+        <name>FlexiPage</name>
     </types>
     <types>
-        <members>*</members>
-        <name>ApexTrigger</name>
-    </types>
-    <types>
-        <members>*</members>
-        <name>AuraDefinitionBundle</name>
-    </types>
-    <types>
-        <members>*</members>
+        <members>accountTable</members>
         <name>LightningComponentBundle</name>
     </types>
     <types>
-        <members>*</members>
+        <members>BoatMessageChannel</members>
+        <name>LightningMessageChannel</name>
+    </types>
+    <types>
+        <members>SimilarBoats</members>
+        <name>ApexPage</name>
+    </types>
+    <types>
+        <members>FieldSalesMobile</members>
+        <name>PermissionSet</name>
+    </types>
+    <types>
+        <members>Admin</members>
+        <members>Minimum Access - Salesforce</members>
+        <members>Read Only</members>
+        <members>SolutionManager</members>
+        <members>Standard</members>
+        <members>StandardAul</members>
+        <members>Work%2Ecom Only User</members>
+        <name>Profile</name>
+    </types>
+    <types>
+        <members>OrderInfo__c</members>
+        <name>CustomTab</name>
+    </types>
+    <types>
+        <members>Account.Create_SalesAction_Draft</members>
+        <members>Account.Log_SalesActivity</members>
+        <name>QuickAction</name>
+    </types>
+    <types>
+        <members>boats</members>
+        <members>fivestar</members>
+        <members>Houseboats</members>
+        <members>PleasureBoats</members>
+        <members>Sailboats</members>
         <name>StaticResource</name>
     </types>
-    <version>62.0</version>
+    <version>64.0</version>
 </Package>
