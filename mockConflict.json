@@ -1,0 +1,67 @@
+{
+  "status": 0,
+  "result": {
+    "ignored": [],
+    "toDeploy": [
+      {
+        "type": "LightningComponentBundle",
+        "fullName": "contactList",
+        "conflict": false,
+        "ignored": false,
+        "path": "force-app/main/default/lwc/contactList/contactList.js-meta.xml",
+        "projectRelativePath": "force-app/main/default/lwc/contactList/contactList.js-meta.xml",
+        "operation": "deploy"
+      },
+      {
+        "type": "LightningMessageChannel",
+        "fullName": "Count_Updated",
+        "conflict": false,
+        "ignored": false,
+        "path": "force-app/main/default/messageChannels/Count_Updated.messageChannel-meta.xml",
+        "projectRelativePath": "force-app/main/default/messageChannels/Count_Updated.messageChannel-meta.xml",
+        "operation": "deploy"
+      },
+      {
+        "type": "Profile",
+        "fullName": "SolutionManager",
+        "conflict": false,
+        "ignored": false,
+        "path": "force-app/main/default/profiles/SolutionManager.profile-meta.xml",
+        "projectRelativePath": "force-app/main/default/profiles/SolutionManager.profile-meta.xml",
+        "operation": "deploy"
+      },
+      {
+        "type": "Profile",
+        "fullName": "Standard",
+        "conflict": false,
+        "ignored": false,
+        "path": "force-app/main/default/profiles/Standard.profile-meta.xml",
+        "projectRelativePath": "force-app/main/default/profiles/Standard.profile-meta.xml",
+        "operation": "deploy"
+      },
+      {
+        "type": "Profile",
+        "fullName": "StandardAul",
+        "conflict": false,
+        "ignored": false,
+        "path": "force-app/main/default/profiles/StandardAul.profile-meta.xml",
+        "projectRelativePath": "force-app/main/default/profiles/StandardAul.profile-meta.xml",
+        "operation": "deploy"
+      }
+    ],
+    "toRetrieve": [],
+    "toDelete": [],
+    "conflicts": [
+      {
+        "type": "Profile",
+        "fullName": "Admin",
+        "conflict": true,
+        "ignored": false,
+        "path": "force-app/main/default/profiles/Admin.profile-meta.xml",
+        "projectRelativePath": "force-app/main/default/profiles/Admin.profile-meta.xml",
+        "operation": "deploy"
+      }
+    ]
+  },
+  "warnings": []
+}
