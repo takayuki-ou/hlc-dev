@@ -70,7 +70,7 @@ ${output}`;
   }
 }
 
-async function main() {
+export async function main() {
   // 組織の指定を最初に受け取る
   const { targetOrg } = await inquirer.prompt([
     {
@@ -98,15 +98,28 @@ async function main() {
     throw new Error(`デプロイプレビューでエラーが返されました。${errorDetails}`);
   }
 
-  const toDeploy = deployResult.result?.toDeploy;
+  // コンフリクトの処理
+  const conflicts = deployResult.result?.conflicts;
+  if (conflicts && conflicts.length > 0) {
+    console.error("\nデプロイプレビューでコンフリクトが検出されました。");
+    console.error("以下のコンポーネントを解決してください:");
+    conflicts.forEach(conflict => {
+      console.error(`  - ${conflict.state}: ${conflict.type}:${conflict.fullName}`);
+    });
+    console.error("\nコンフリクトを解決してから、再度デプロイを試みてください。");
+    // コンフリクトはデプロイの失敗を示すため、エラーコード1で終了
+    process.exit(1);
+  }
 
-  if (!toDeploy || toDeploy.length === 0) {
+  const componentsToDeploy = deployResult.result?.files || deployResult.result?.toDeploy;
+
+  if (!componentsToDeploy || componentsToDeploy.length === 0) {
     console.log("デプロイ対象のファイルがありません。");
     return;
   }
 
   // チェックボックス用の選択肢を作成
-  const choices = toDeploy.map((item) => ({
+  const choices = componentsToDeploy.map((item) => ({
     name: `${item.type}:${item.fullName}`,
     value: `${item.type}:${item.fullName}`,
     checked: false
@@ -173,13 +186,5 @@ async function main() {
   }
 }
 
-main().catch((error) => {
-  // inquirerがCtrl+Cでキャンセルされるとエラーをスローするが、メッセージは不要
-  if (error.isTtyError) {
-    console.log("\n処理が中断されました。");
-  } else {
-    console.error("\n[エラー発生]");
-    console.error(error.message);
-  }
-  process.exit(1);
-});
+// This file is intended to be a module.
+// To run the script, use the runner file: scripts/tools/run-interactive-deploy.js
