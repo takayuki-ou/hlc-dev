@@ -40,32 +40,15 @@ async function saveCommandToFile(command) {
  * @throws {Error} - コマンド実行またはJSON解析に失敗した場合
  */
 function getDeployPreview(targetOrg) {
-  const deployCommand = `sf project deploy preview --json -o ${targetOrg}`;
+  const targetOrgFlg = targetOrg ? `-o ${targetOrg}` : "";
+  const previewCommand = `sf project deploy preview --json ${targetOrgFlg}`;
   try {
-    const deployOutput = execSync(deployCommand, { encoding: "utf8" });
-    return JSON.parse(deployOutput);
+    const previewOutput = execSync(previewCommand, { encoding: "utf8" });
+    return JSON.parse(previewOutput);
   } catch (error) {
-    // コマンドが失敗した場合でも、sfコマンドはJSONをstdoutやstderrに出力することがある
-    const output = error.stdout || error.stderr;
-    try {
-      // 空の出力の場合、エラーメッセージから情報を取得する
-      if (!output) {
-        throw new Error(error.message);
-      }
-      return JSON.parse(output);
-    } catch (parseError) {
-      // JSONのパースに失敗した場合、より詳細なエラーをスローする
-      const errorMessage = `デプロイプレビューの実行、または結果の解析に失敗しました。
-
-[sf command]
-${deployCommand}
-
-[Error]
-${error.message}
-
-[Output]
-${output}`;
-      throw new Error(errorMessage);
+    // コマンドが失敗してもJSON出力がある場合があるので、stderrからも取得を試みる
+    if (error.stdout) {
+      return JSON.parse(error.stdout);
     }
   }
 }
@@ -76,42 +59,51 @@ export async function main() {
     {
       type: "input",
       name: "targetOrg",
-      message: "デプロイ先の組織を指定してください:",
-      validate: (input) => {
-        if (!input.trim()) {
-          return "組織名を入力してください";
-        }
-        return true;
-      }
+      message:
+        "デプロイ先の組織を指定してください (空白の場合はデフォルト組織):"
     }
   ]);
 
-  console.log("\nデプロイ対象を取得中...");
-  const deployResult = getDeployPreview(targetOrg);
-
-  // エラーレスポンスの処理
-  if (deployResult.status !== 0) {
-    const errorDetails = `
-エラー: ${deployResult.name || "Unknown Error"}
-メッセージ: ${deployResult.message || "No message provided"}
-終了コード: ${deployResult.exitCode || "N/A"}`;
-    throw new Error(`デプロイプレビューでエラーが返されました。${errorDetails}`);
-  }
+  console.log("\nローカルで変更されたコンポーネントを確認中...");
+  const previewResult = getDeployPreview(targetOrg);
 
   // コンフリクトの処理
-  const conflicts = deployResult.result?.conflicts;
+  const conflicts = previewResult.result?.conflicts;
+  let forceFlag = false;
+
   if (conflicts && conflicts.length > 0) {
-    console.error("\nデプロイプレビューでコンフリクトが検出されました。");
-    console.error("以下のコンポーネントを解決してください:");
-    conflicts.forEach(conflict => {
-      console.error(`  - ${conflict.state}: ${conflict.type}:${conflict.fullName}`);
+    console.warn("以下のコンポーネントでコンフリクトが発生しています:");
+    conflicts.forEach((conflict) => {
+      console.warn(
+        `- ${conflict.type}:${conflict.fullName}\n  ${conflict.path}`
+      );
     });
-    console.error("\nコンフリクトを解決してから、再度デプロイを試みてください。");
-    // コンフリクトはデプロイの失敗を示すため、エラーコード1で終了
-    process.exit(1);
+
+    // ユーザーに続行するかどうか確認
+    const { continueWithForce } = await inquirer.prompt([
+      {
+        type: "confirm",
+        name: "continueWithForce",
+        message: "デプロイ対象の選択に進みますか？",
+        default: false
+      }
+    ]);
+
+    if (continueWithForce) {
+      forceFlag = true;
+      console.log(
+        "\n⚠️  選択されたファイルは--ignore-conflictsフラグを使用してデプロイします。"
+      );
+    } else {
+      console.log(
+        "\nコンフリクトを解決してから、再度デプロイを試みてください。"
+      );
+      process.exit(1);
+    }
   }
 
-  const componentsToDeploy = deployResult.result?.files || deployResult.result?.toDeploy;
+  const componentsToDeploy =
+    previewResult.result?.files || previewResult.result?.toDeploy;
 
   if (!componentsToDeploy || componentsToDeploy.length === 0) {
     console.log("デプロイ対象のファイルがありません。");
@@ -124,7 +116,15 @@ export async function main() {
     value: `${item.type}:${item.fullName}`,
     checked: false
   }));
-
+  if (conflicts?.length > 0) {
+    conflicts.forEach((conflict) => {
+      choices.push({
+        name: `${conflict.type}:${conflict.fullName} (コンフリクト)`,
+        value: `${conflict.type}:${conflict.fullName}`,
+        checked: false
+      });
+    });
+  }
   // 対話的に選択
   const { selectedItems } = await inquirer.prompt([
     {
@@ -132,6 +132,7 @@ export async function main() {
       name: "selectedItems",
       message: "デプロイするメタデータを選択してください:",
       choices: choices,
+      loop: false,
       validate: (answer) => {
         if (answer.length < 1) {
           return "少なくとも1つのアイテムを選択してください";
@@ -150,41 +151,45 @@ export async function main() {
   const metadataString = selectedItems.join(" ");
 
   // 最終的なデプロイコマンドを構築
-  const finalCommand = `sf project deploy start --metadata ${metadataString} -o ${targetOrg}`;
+  const flgMetadata = ` --metadata ${metadataString}`;
+  const flgTargetOrg = targetOrg ? ` -o ${targetOrg}` : "";
+  const flgForce = forceFlag ? " --ignore-conflicts" : "";
+  const deployCommand = "sf project deploy start".concat(
+    flgMetadata,
+    flgTargetOrg,
+    flgForce
+  );
 
-    // ファイルに保存するか確認
-    const { saveToFile } = await inquirer.prompt([
-      {
-        type: "confirm",
-        name: "saveToFile",
-        message: "このコマンドをファイルに保存しますか?",
-        default: false
-      }
-    ]);
-
-    if (saveToFile) {
-      await saveCommandToFile(finalCommand);
+  // ファイルに保存するか確認
+  const { saveToFile } = await inquirer.prompt([
+    {
+      type: "confirm",
+      name: "saveToFile",
+      message: "このコマンドをファイルに保存しますか?",
+      default: false
     }
+  ]);
 
-    // 実行確認
-    const { confirmDeploy } = await inquirer.prompt([
-      {
-        type: "confirm",
-        name: "confirmDeploy",
-        message: "このコマンドを実行しますか?",
-        default: true
-      }
-    ]);
+  if (saveToFile) {
+    await saveCommandToFile(deployCommand);
+  }
+
+  // 実行確認
+  const { confirmDeploy } = await inquirer.prompt([
+    {
+      type: "confirm",
+      name: "confirmDeploy",
+      message: "このコマンドを実行しますか?",
+      default: true
+    }
+  ]);
 
   if (confirmDeploy) {
     console.log("\nデプロイを実行中...");
     // 最終的なデプロイコマンドは、成功・失敗がストリームでわかるようにstdioをinheritする
-    execSync(finalCommand, { stdio: "inherit" });
+    execSync(deployCommand, { stdio: "inherit" });
     console.log("\nデプロイが完了しました。");
   } else {
     console.log("デプロイをキャンセルしました。");
   }
 }
-
-// This file is intended to be a module.
-// To run the script, use the runner file: scripts/tools/run-interactive-deploy.js
