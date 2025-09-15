@@ -15,7 +15,7 @@
     "prettier:verify": "prettier --check \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\"",
     "postinstall": "husky install",
     "precommit": "lint-staged",
-    "deploy:interactive": "node scripts/tools/run-interactive-deploy.js"
+    "deploy:interactive": "node scripts/tools/interactive-deploy/run-interactive-deploy.js"
   },
   "dependencies": {
     "@salesforce/cli": "^2.105.6",
