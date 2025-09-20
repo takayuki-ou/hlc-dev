@@ -1,0 +1,69 @@
+<template>
+  <lightning-card
+    title="Google Map with Address Input"
+    icon-name="utility:location"
+  >
+    <!-- Input fields for address, latitude, longitude -->
+    <div class="slds-p-around_medium">
+      <div class="slds-grid slds-wrap slds-gutters">
+        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+          <lightning-input
+            label="住所"
+            value={address}
+            onchange={handleAddressChange}
+            placeholder="住所を入力してください"
+          >
+          </lightning-input>
+        </div>
+        <div class="slds-col slds-size_1-of-2 slds-medium-size_1-of-3">
+          <lightning-input
+            label="緯度"
+            type="number"
+            step="any"
+            value={latitude}
+            onchange={handleLatitudeChange}
+            placeholder="35.681"
+          >
+          </lightning-input>
+        </div>
+        <div class="slds-col slds-size_1-of-2 slds-medium-size_1-of-3">
+          <lightning-input
+            label="経度"
+            type="number"
+            step="any"
+            value={longitude}
+            onchange={handleLongitudeChange}
+            placeholder="139.767"
+          >
+          </lightning-input>
+        </div>
+      </div>
+      <div class="slds-m-top_small">
+        <lightning-button
+          label="地図を更新"
+          variant="brand"
+          onclick={updateMapFromInputs}
+        >
+        </lightning-button>
+        <lightning-button
+          label="大阪に移動"
+          onclick={panToOsaka}
+          class="slds-m-left_small"
+        >
+        </lightning-button>
+      </div>
+    </div>
+
+    <!-- Map iframe -->
+    <div style="height: 500px; width: 100%">
+      <iframe
+        src={vfPageUrl}
+        width="100%"
+        height="100%"
+        frameborder="0"
+        onload={handleIframeLoad}
+      >
+      </iframe>
+    </div>
+  </lightning-card>
+</template>

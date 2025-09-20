@@ -1,0 +1,128 @@
+<apex:page>
+  <style>
+    /* CSSリセット */
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden; /* スクロールバーを非表示 */
+    }
+    #map {
+      height: 100%;
+      width: 100%;
+    }
+  </style>
+
+  <div id="map"></div>
+
+  <script>
+    let map;
+    let marker;
+    let geocoder;
+
+    function initMap() {
+      const mapDiv = document.getElementById("map");
+
+      // 地図を初期化
+      map = new google.maps.Map(mapDiv, {
+        center: { lat: 35.681, lng: 139.767 }, // 東京駅
+        zoom: 14
+      });
+
+      // ジオコーダーを初期化
+      geocoder = new google.maps.Geocoder();
+
+      // ドラッグ可能なマーカーを作成
+      marker = new google.maps.Marker({
+        position: { lat: 35.681, lng: 139.767 },
+        map: map,
+        draggable: true,
+        title: "ドラッグして位置を変更"
+      });
+
+      // マーカーのドラッグ終了イベントリスナー
+      marker.addListener("dragend", function (event) {
+        const lat = event.latLng.lat();
+        const lng = event.latLng.lng();
+
+        // 逆ジオコーディングで住所を取得
+        reverseGeocode(lat, lng);
+      });
+
+      // 地図クリックでマーカー位置を更新
+      map.addListener("click", function (event) {
+        const lat = event.latLng.lat();
+        const lng = event.latLng.lng();
+
+        marker.setPosition(event.latLng);
+        reverseGeocode(lat, lng);
+      });
+    }
+
+    // 逆ジオコーディング関数
+    function reverseGeocode(lat, lng) {
+      const latlng = { lat: lat, lng: lng };
+
+      geocoder.geocode({ location: latlng }, function (results, status) {
+        let address = "";
+        if (status === "OK" && results[0]) {
+          address = results[0].formatted_address;
+        }
+
+        // LWCに位置情報を送信
+        sendLocationToLWC(lat, lng, address);
+      });
+    }
+
+    // LWCに位置情報を送信
+    function sendLocationToLWC(lat, lng, address) {
+      const message = {
+        type: "LOCATION_UPDATE",
+        lat: lat,
+        lng: lng,
+        address: address
+      };
+
+      // 親ウィンドウ（LWC）にメッセージを送信
+      window.parent.postMessage(message, "*");
+    }
+
+    // LWCからのメッセージを受け取るリスナー
+    window.addEventListener(
+      "message",
+      function (event) {
+        // ★重要：送信元のオリジンを検証してセキュリティを確保
+        // event.origin があなたのSalesforceドメインであることを確認してください
+        // 例: if (event.origin !== "https://your-domain.lightning.force.com") return;
+
+        const data = event.data;
+
+        if (data && data.type === "SET_CENTER") {
+          // 既存の中心移動機能（後方互換性のため残す）
+          const newCenter = new google.maps.LatLng(data.lat, data.lng);
+          map.setCenter(newCenter);
+          marker.setPosition(newCenter);
+        } else if (data && data.type === "SET_LOCATION") {
+          // 新しい位置設定機能
+          const newPosition = new google.maps.LatLng(data.lat, data.lng);
+          map.setCenter(newPosition);
+          marker.setPosition(newPosition);
+
+          // 住所が提供されている場合は逆ジオコーディングをスキップ
+          if (data.address) {
+            sendLocationToLWC(data.lat, data.lng, data.address);
+          } else {
+            // 住所が提供されていない場合は逆ジオコーディングを実行
+            reverseGeocode(data.lat, data.lng);
+          }
+        }
+      },
+      false
+    );
+  </script>
+
+  <script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB-WEIbT12AghDUal0jnxxOKB78i7pKFOg&callback=initMap"
+  ></script>
+</apex:page>
