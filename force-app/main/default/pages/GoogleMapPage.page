@@ -123,6 +123,6 @@
   </script>
 
   <script
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB-WEIbT12AghDUal0jnxxOKB78i7pKFOg&callback=initMap"
+    src="https://maps.googleapis.com/maps/api/js?key={!$Label.GOOGLEMAP_API_KEY}&callback=initMap"
   ></script>
 </apex:page>
