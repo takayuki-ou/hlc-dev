@@ -1,0 +1,14 @@
+<template>
+   <template if:true={contacts}>
+        <lightning-datatable
+            data={contacts}
+            columns={columns}
+            key-field="Id">
+        </lightning-datatable>
+    </template>
+    <template if:true={errors}>
+        <div class="slds-text-color_error">
+            {errors}
+        </div>
+    </template>
+</template>
