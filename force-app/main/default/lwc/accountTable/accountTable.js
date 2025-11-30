@@ -1,4 +1,5 @@
 import { LightningElement, wire } from 'lwc';
+import { reduceErrors } from 'c/ldsUtils';
 import getTopAccounts from '@salesforce/apex/AccountController.getTopAccounts';
 
 const COLUMNS = [
@@ -8,17 +9,22 @@ const COLUMNS = [
 
 export default class AccountTable extends LightningElement {
     columns = COLUMNS;
-    accounts;
-    error;
-
     @wire(getTopAccounts)
-    wiredAccounts({ error, data }) {
-        if (data) {
-            this.accounts = data;
-            this.error = undefined;
-        } else if (error) {
-            this.error = error;
-            this.accounts = undefined;
-        }
+    accounts;
+
+    get errors() {
+        return (this.accounts.error) ?
+            reduceErrors(this.accounts.error) : [];
     }
+
+    // @wire(getTopAccounts)
+    // wiredAccounts({ error, data }) {
+    //     if (data) {
+    //         this.accounts = data;
+    //         this.error = undefined;
+    //     } else if (error) {
+    //         this.error = error;
+    //         this.accounts = undefined;
+    //     }
+    // }
 }

@@ -5,12 +5,11 @@
         <name>CustomApplication</name>
     </types>
     <types>
-        <members>AccountController</members>
-        <members>SimilarBoatsController</members>
+        <members>*</members>
         <name>ApexClass</name>
     </types>
     <types>
-        <members>SimilarBoatsComponent</members>
+        <members>*</members>
         <name>ApexComponent</name>
     </types>
     <types>
@@ -31,7 +30,7 @@
         <name>FlexiPage</name>
     </types>
     <types>
-        <members>accountTable</members>
+        <members>*</members>
         <name>LightningComponentBundle</name>
     </types>
     <types>
@@ -39,7 +38,7 @@
         <name>LightningMessageChannel</name>
     </types>
     <types>
-        <members>SimilarBoats</members>
+        <members>*</members>
         <name>ApexPage</name>
     </types>
     <types>
