@@ -1,0 +1,9 @@
+<template>
+    <lightning-card title="Account Finder">
+        <lightning-input type="number" label="Annual Revenue" formatter="currency" value={annualRevenue}
+            onchange={handleChange}>
+        </lightning-input>
+        <lightning-button label="reset" onclick={reset} class="slds-m-top_small">
+        </lightning-button>
+    </lightning-card>
+</template>
