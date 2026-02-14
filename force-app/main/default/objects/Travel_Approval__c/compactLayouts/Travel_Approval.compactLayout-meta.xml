@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CompactLayout xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Travel_Approval</fullName>
+    <fields>Name</fields>
+    <fields>Days_Until_Trip__c</fields>
+    <fields>Destination_State__c</fields>
+    <fields>Department__c</fields>
+    <fields>Status__c</fields>
+    <label>Travel Approval</label>
+</CompactLayout>

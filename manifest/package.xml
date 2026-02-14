@@ -23,6 +23,10 @@
         <name>CustomObject</name>
     </types>
     <types>
+        <members>*</members>
+        <name>CustomMetadata</name>
+    </types>
+    <types>
         <members>FlexiPage</members>
         <members>AccountList_App</members>
         <members>Boat_Record_Page</members>
